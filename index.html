@@ -278,6 +278,8 @@
       timeRemaining: 0,
       timerInterval: null,
       numbersList: [],
+      sequence: [],
+      sequenceIndex: 0,
       gridSize: 0,
       isRunning: false,
       isFinished: false,
@@ -357,36 +359,36 @@
       const sequence = [];
       let nextValue = 1;
 
-      for (let i = 0; i < sequenceLength; i++) {
-        const step = 1 + Math.floor(Math.random() * Math.max(2, Math.ceil(state.currentLevel / 4)));
-        nextValue += step;
+      for (let i = 0; i < sequenceLength; i += 1) {
         sequence.push(nextValue);
+        const jump = 1 + Math.floor(Math.random() * Math.max(2, Math.ceil(state.currentLevel / 4)));
+        nextValue += jump;
       }
 
-      const shuffled = [];
-      for (let i = 0; i < totalCells; i++) {
-        let value = Math.floor(Math.random() * (nextValue + 12)) + 1;
-        if (sequence.includes(value)) {
-          value = value + 1;
+      const fillerCount = totalCells - sequence.length;
+      const boardNumbers = [];
+      const usedValues = new Set(sequence);
+
+      while (boardNumbers.length < fillerCount) {
+        let candidate = Math.floor(Math.random() * (nextValue + 12)) + 1;
+
+        while (usedValues.has(candidate)) {
+          candidate += 1;
         }
-        shuffled.push(value);
+
+        usedValues.add(candidate);
+        boardNumbers.push(candidate);
       }
 
-      const finalNumbers = [...shuffled];
-      for (let i = 0; i < sequenceLength; i++) {
-        const insertIndex = Math.floor(Math.random() * finalNumbers.length);
-        finalNumbers.splice(insertIndex, 0, sequence[i]);
+      for (const value of sequence) {
+        const insertIndex = Math.floor(Math.random() * boardNumbers.length);
+        boardNumbers.splice(insertIndex, 0, value);
       }
 
-      while (finalNumbers.length > totalCells) {
-        finalNumbers.pop();
-      }
-
-      while (finalNumbers.length < totalCells) {
-        finalNumbers.push(Math.floor(Math.random() * (nextValue + 20)) + 1);
-      }
-
-      return finalNumbers.slice(0, totalCells);
+      state.sequence = sequence;
+      state.sequenceIndex = 0;
+      state.targetNumber = sequence[0] ?? 1;
+      return boardNumbers.slice(0, totalCells);
     }
 
     function clearTimer() {
@@ -435,7 +437,8 @@
       gridContainer.innerHTML = '';
 
       state.numbersList = buildLevelNumbers();
-      state.targetNumber = 1;
+      levelHud.textContent = String(state.currentLevel);
+      targetHud.textContent = String(state.targetNumber);
 
       state.numbersList.forEach((value, index) => {
         const cell = document.createElement('div');
@@ -446,9 +449,6 @@
         cell.addEventListener('click', () => handleCellClick(cell));
         gridContainer.appendChild(cell);
       });
-
-      levelHud.textContent = String(state.currentLevel);
-      targetHud.textContent = '1';
     }
 
     function handleCellClick(cell) {
@@ -460,10 +460,14 @@
       if (value === state.targetNumber) {
         cell.classList.add('found');
         cell.style.color = 'white';
-        state.targetNumber += 1;
-        targetHud.textContent = String(state.targetNumber);
 
-        if (state.targetNumber > Math.max(...state.numbersList)) {
+        state.sequenceIndex += 1;
+        const nextTarget = state.sequence[state.sequenceIndex];
+
+        if (typeof nextTarget === 'number') {
+          state.targetNumber = nextTarget;
+          targetHud.textContent = String(nextTarget);
+        } else {
           finishGame(true, 'You cleared the level!');
         }
       } else {
@@ -498,7 +502,6 @@
       clearTimer();
       state.isFinished = false;
       state.isRunning = true;
-      state.targetNumber = 1;
       renderGrid();
       startTimer();
       showScreen('game');
@@ -519,9 +522,17 @@
       if (state.nextAction === 'next') {
         state.currentLevel = Math.min(state.currentLevel + 1, state.maxLevels);
       }
+
+      if (state.nextAction === 'retry') {
+        state.currentLevel = Math.max(1, state.currentLevel);
+        startLevel();
+        return;
+      }
+
       if (state.currentLevel < 1) {
         state.currentLevel = 1;
       }
+
       showScreen('menu');
       document.getElementById('btn-start').textContent = `Start Level ${state.currentLevel}`;
     });
