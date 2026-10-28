@@ -1,310 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sequential Number Finder Game</title>
-    <style>
-        :root {
-            --bg-color: #f4f7f6;
-            --container-bg: #ffffff;
-            --primary-color: #3b82f6;
-            --primary-hover: #2563eb;
-            --success-color: #10b981;
-            --error-color: #ef4444;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border-color: #e5e7eb;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sequential Number Finder Game</title>
+  <style>
+    :root {
+      --bg-color: #f4f7f6;
+      --container-bg: #ffffff;
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --success-color: #10b981;
+      --error-color: #ef4444;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
-        .game-wrapper {
-            background: var(--container-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            padding: 30px;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
+    .game-wrapper {
+      background: var(--container-bg);
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      padding: 30px;
+      width: min(100%, 620px);
+      text-align: center;
+    }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: var(--text-main);
-        }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
 
-        .subtitle {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 25px;
-        }
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
 
-        /* Screen Configurations */
-        .screen {
-            display: none;
-        }
+    .screen {
+      display: none;
+    }
 
-        .screen.active {
-            display: block;
-        }
+    .screen.active {
+      display: block;
+    }
 
-        /* Setup Panel Utilities */
-        .setup-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
+    .setup-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
 
-        .setup-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
+    .setup-group label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
 
-        .radio-options, .timer-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
+    .radio-options, .timer-options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
 
-        .btn-option {
-            background: white;
-            border: 2px solid var(--border-color);
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
+    .btn-option {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
 
-        .btn-option:hover {
-            border-color: var(--primary-color);
-        }
+    .btn-option:hover {
+      border-color: var(--primary-color);
+    }
 
-        .btn-option.selected {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-        }
+    .btn-option.selected {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
 
-        .custom-time-input {
-            margin-top: 10px;
-            display: none;
-        }
+    .custom-time-input {
+      display: none;
+      margin-top: 12px;
+    }
 
-        .custom-time-input input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 14px;
-        }
+    .custom-time-input input {
+      width: 100%;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+      padding: 10px 12px;
+    }
 
-        .btn-main {
-            width: 100%;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            margin-top: 10px;
-        }
+    .btn-main {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s ease;
+    }
 
-        .btn-main:hover {
-            background-color: var(--primary-hover);
-        }
+    .btn-main:hover {
+      background: var(--primary-hover);
+    }
 
-        /* HUD Info Bar */
-        .hud-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--border-color);
-            font-weight: 600;
-        }
+    .hud-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border-color);
+      font-weight: 700;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-        .hud-item span {
-            color: var(--primary-color);
-            font-size: 18px;
-        }
+    .hud-item span {
+      color: var(--primary-color);
+      font-size: 1.05rem;
+    }
 
-        /* Number Grid Layout */
-        .grid-container {
-            display: grid;
-            gap: 10px;
-            margin: 20px auto;
-            max-width: 450px;
-            aspect-ratio: 1 / 1;
-        }
+    .grid-container {
+      display: grid;
+      gap: 10px;
+      margin: 20px auto;
+      max-width: 420px;
+      aspect-ratio: 1 / 1;
+    }
 
-        .grid-cell {
-            background-color: #f3f4f6;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 700;
-            color: transparent; /* Initially Hidden */
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
-            border: 2px solid transparent;
-        }
+    .grid-cell {
+      background: #f3f4f6;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(14px, 2vw, 22px);
+      font-weight: 800;
+      color: transparent;
+      user-select: none;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
 
-        .grid-cell:hover:not(.found) {
-            background-color: #e5e7eb;
-        }
+    .grid-cell:hover:not(.found) {
+      background: #e5e7eb;
+    }
 
-        /* Game Interaction Statuses */
-        .grid-cell.found {
-            background-color: var(--success-color);
-            color: white !important;
-            cursor: default;
-        }
+    .grid-cell.found {
+      background: var(--success-color);
+      color: white !important;
+      cursor: default;
+    }
 
-        .grid-cell.wrong-blink {
-            background-color: var(--error-color) !important;
-            color: white !important;
-            animation: shake 0.2s ease-in-out;
-        }
+    .grid-cell.wrong-blink {
+      background: var(--error-color) !important;
+      color: white !important;
+      animation: shake 0.2s ease-in-out;
+    }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-        }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
 
-        /* End Game Screen elements */
-        .status-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-    </style>
+    .status-icon {
+      font-size: 52px;
+      margin-bottom: 14px;
+    }
+
+    #btn-quit {
+      background: #6b7280;
+    }
+
+    #btn-quit:hover {
+      background: #4b5563;
+    }
+
+    @media (max-width: 560px) {
+      .game-wrapper {
+        padding: 20px 16px;
+      }
+
+      .hud-bar {
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="game-wrapper">
+    <h1>Sequence Finder</h1>
+    <div class="subtitle">Find the hidden numbers in ascending order before time runs out.</div>
 
-    <div class="game-wrapper">
-        <h1>Sequence Finder</h1>
-        <div class="subtitle">Find the unique hidden numbers in strict ascending order</div>
-
-        <!-- SCREEN 1: MENU CONFIGURATION -->
-        <div id="menu-screen" class="screen active">
-            <div class="setup-group">
-                <label>Select Difficulty</label>
-                <div class="radio-options">
-                    <div class="btn-option selected" data-type="diff" data-val="easy">Easy</div>
-                    <div class="btn-option" data-type="diff" data-val="medium">Medium</div>
-                    <div class="btn-option" data-type="diff" data-val="hard">Hard</div>
-                </div>
-            </div>
-
-            <div class="setup-group">
-                <label>Timer Settings</label>
-                <div class="timer-options">
-                    <div class="btn-option selected" data-type="timer" data-val="standard">Standard</div>
-                    <div class="btn-option" data-type="timer" data-val="none">No Timer</div>
-                    <div class="btn-option" data-type="timer" data-val="custom">Custom</div>
-                </div>
-                <div class="custom-time-input" id="custom-timer-wrapper">
-                    <input type="number" id="custom-seconds" placeholder="Enter time limit in seconds (e.g. 45)" min="5">
-                </div>
-            </div>
-
-            <button class="btn-main" id="btn-start">Start Level 1</button>
+    <div id="menu-screen" class="screen active">
+      <div class="setup-group">
+        <label>Select Difficulty</label>
+        <div class="radio-options">
+          <div class="btn-option selected" data-type="diff" data-val="easy">Easy</div>
+          <div class="btn-option" data-type="diff" data-val="medium">Medium</div>
+          <div class="btn-option" data-type="diff" data-val="hard">Hard</div>
         </div>
+      </div>
 
-        <!-- SCREEN 2: ACTIVE GAMEPLAY -->
-        <div id="game-screen" class="screen">
-            <div class="hud-bar">
-                <div class="hud-item">Level: <span id="hud-level">1</span>/100</div>
-                <div class="hud-item">Next Number: <span id="hud-target">1</span></div>
-                <div class="hud-item">Time Remaining: <span id="hud-time">--</span></div>
-            </div>
-
-            <div class="grid-container" id="number-grid"></div>
-            <button class="btn-main" style="background-color: var(--text-muted);" id="btn-quit">Quit Game</button>
+      <div class="setup-group">
+        <label>Timer Settings</label>
+        <div class="timer-options">
+          <div class="btn-option selected" data-type="timer" data-val="standard">Standard</div>
+          <div class="btn-option" data-type="timer" data-val="none">No Timer</div>
+          <div class="btn-option" data-type="timer" data-val="custom">Custom</div>
         </div>
-
-        <!-- SCREEN 3: GAME OVER / WIN -->
-        <div id="end-screen" class="screen">
-            <div class="status-icon" id="end-icon">🎉</div>
-            <h2 id="end-title">Level Complete!</h2>
-            <p id="end-message" style="margin: 15px 0; color: var(--text-muted);"></p>
-            <button class="btn-main" id="btn-action">Next Level</button>
+        <div class="custom-time-input" id="custom-timer-wrapper">
+          <input type="number" id="custom-seconds" placeholder="Enter time limit in seconds (e.g. 45)" min="5" value="45" />
         </div>
+      </div>
+
+      <button class="btn-main" id="btn-start">Start Level 1</button>
     </div>
 
-    <script>
-        // Core Game Configurations & States
-        const state = {
-            currentLevel: 1,
-            maxLevels: 100,
-            difficulty: 'easy',
-            timerMode: 'standard',
-            customTimeLimit: 30,
-            targetNumber: 1,
-            totalNumbers: 12,
-            timeRemaining: 0,
-            timerInterval: null,
-            numbersList: []
-        };
+    <div id="game-screen" class="screen">
+      <div class="hud-bar">
+        <div class="hud-item">Level: <span id="hud-level">1</span>/100</div>
+        <div class="hud-item">Next Number: <span id="hud-target">1</span></div>
+        <div class="hud-item">Time Remaining: <span id="hud-time">--</span></div>
+      </div>
 
-        // DOM Element Cache
-        const menuScreen = document.getElementById('menu-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const endScreen = document.getElementById('end-screen');
-        const gridContainer = document.getElementById('number-grid');
-        const customTimerWrapper = document.getElementById('custom-timer-wrapper');
-        
-        // Setup configuration option clicks
-        document.querySelectorAll('.btn-option').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const type = btn.getAttribute('data-type');
-                // Unselect siblings
-                document.querySelectorAll(`.btn-option[data-type="${type}"]`).forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
+      <div class="grid-container" id="number-grid"></div>
+      <button class="btn-main" id="btn-quit">Quit Game</button>
+    </div>
 
-                if (type === 'diff') {
-                    state.difficulty = btn.getAttribute('data-val');
-                } else if (type === 'timer') {
-                    state.timerMode = btn.getAttribute('data-val');
-                    customTimerWrapper.style.display = state.timerMode === 'custom' ? 'block' : 'none';
-                }
-            });
+    <div id="end-screen" class="screen">
+      <div class="status-icon" id="end-icon">🎉</div>
+      <h2 id="end-title">Level Complete!</h2>
+      <p id="end-message" style="margin: 15px 0; color: var(--text-muted);"></p>
+      <button class="btn-main" id="btn-action">Next Level</button>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      currentLevel: 1,
+      maxLevels: 100,
+      difficulty: 'easy',
+      timerMode: 'standard',
+      customTimeLimit: 45,
+      targetNumber: 1,
+      timeRemaining: 0,
+      timerInterval: null,
+      numbersList: [],
+      gridSize: 0,
+      isRunning: false,
+      isFinished: false,
+      nextAction: 'next'
+    };
+
+    const menuScreen = document.getElementById('menu-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const endScreen = document.getElementById('end-screen');
+    const gridContainer = document.getElementById('number-grid');
+    const customTimerWrapper = document.getElementById('custom-timer-wrapper');
+    const customSecondsInput = document.getElementById('custom-seconds');
+    const levelHud = document.getElementById('hud-level');
+    const targetHud = document.getElementById('hud-target');
+    const timeHud = document.getElementById('hud-time');
+    const endIcon = document.getElementById('end-icon');
+    const endTitle = document.getElementById('end-title');
+    const endMessage = document.getElementById('end-message');
+    const actionButton = document.getElementById('btn-action');
+
+    function updateCustomTimerVisibility() {
+      customTimerWrapper.style.display = state.timerMode === 'custom' ? 'block' : 'none';
+    }
+
+    document.querySelectorAll('.btn-option').forEach((button) => {
+      button.addEventListener('click', () => {
+        const type = button.getAttribute('data-type');
+        const value = button.getAttribute('data-val');
+
+        document.querySelectorAll(`.btn-option[data-type="${type}"]`).forEach((option) => {
+          option.classList.remove('selected');
         });
 
-        // Initialize Level parameters based on level number and difficulty
-        function setupLevelParameters() {
-            // Numbers base increases gradually over the 100 levels
-            let baseCount = 9 + Math.floor(state.currentLevel * 0.4); 
-            
-            if (state.difficulty === 'medium') baseCount += 4;
-            if (state.difficulty === 'hard') baseCount += 8;
+        button.classList.add('selected');
 
-            // Cap the grid configuration sizes reasonably
+        if (type === 'diff') {
+          state.difficulty = value;
+        }
+
+        if (type === 'timer') {
+          state.timerMode = value;
+          updateCustomTimerVisibility();
+        }
+      });
+    });
+
+    function getDifficultySettings() {
+      const config = {
+        easy: { grid: 4, totalNumbers: 8, time: 40 },
+        medium: { grid: 5, totalNumbers: 10, time: 30 },
+        hard: { grid: 6, totalNumbers: 12, time: 22 }
+      };
+
+      return config[state.difficulty] || config.easy;
+    }
+
+    function getTimerLimit() {
+      if (state.timerMode === 'none') return 0;
+      if (state.timerMode === 'custom') {
+        const customValue = Number(customSecondsInput.value);
+        if (Number.isFinite(customValue) && customValue >= 5) {
+          state.customTimeLimit = customValue;
+          return customValue;
+        }
+        state.customTimeLimit = 45;
+        return 45;
+      }
+
+      const base = getDifficultySettings().time;
+      return base + Math.max(0, state.currentLevel - 1) * 2;
+    }
+
+    function buildLevelNumbers() {
+      const settings = getDifficultySettings();
+      const totalCells = settings.grid * settings.grid;
+      const sequenceLength = Math.min(settings.totalNumbers, totalCells);
+      const sequence = [];
+      let nextValue = 1;
+
+      for (let i = 0; i < sequenceLength; i++) {
+        const step = 1 + Math.floor(Math.random() * Math.max(2, Math.ceil(state.currentLevel / 4)));
+        nextValue += step;
+        sequence.push(nextValue);
+      }
+
+      const shuffled = [];
+      for (let i = 0; i < totalCells; i++) {
+        let value = Math.floor(Math.random() * (nextValue + 12)) + 1;
+        if (sequence.includes(value)) {
+          value = value + 1;
+        }
+        shuffled.push(value);
+      }
+
+      const finalNumbers = [...shuffled];
+      for (let i = 0; i < sequenceLength; i++) {
+        const insertIndex = Math.floor(Math.random() * finalNumbers.length);
+        finalNumbers.splice(insertIndex, 0, sequence[i]);
+      }
+
+      while (finalNumbers.length > totalCells) {
+        finalNumbers.pop();
+      }
+
+      while (finalNumbers.length < totalCells) {
+        finalNumbers.push(Math.floor(Math.random() * (nextValue + 20)) + 1);
+      }
+
+      return finalNumbers.slice(0, totalCells);
+    }
+
+    function clearTimer() {
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+    }
+
+    function startTimer() {
+      clearTimer();
+      const limit = getTimerLimit();
+      state.timeRemaining = limit;
+      timeHud.textContent = limit;
+
+      if (limit <= 0) {
+        timeHud.textContent = '∞';
+        return;
+      }
+
+      state.timerInterval = setInterval(() => {
+        state.timeRemaining -= 1;
+        timeHud.textContent = state.timeRemaining;
+
+        if (state.timeRemaining <= 0) {
+          clearTimer();
+          finishGame(false, 'Time is up!');
+        }
+      }, 1000);
+    }
+
+    function showScreen(screenName) {
+      menuScreen.classList.remove('active');
+      gameScreen.classList.remove('active');
+      endScreen.classList.remove('active');
+
+      if (screenName === 'menu') menuScreen.classList.add('active');
+      if (screenName === 'game') gameScreen.classList.add('active');
+      if (screenName === 'end') endScreen.classList.add('active');
+    }
+
+    function renderGrid() {
+      const size = getDifficultySettings().grid;
+      state.gridSize = size;
+      gridContainer.style.gridTemplateColumns = `repeat(${size}, minmax(0, 1fr))`;
+      gridContainer.innerHTML = '';
+
+      state.numbersList = buildLevelNumbers();
+      state.targetNumber = 1;
+
+      state.numbersList.forEach((value, index) => {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.dataset.value = String(value);
+        cell.dataset.index = String(index);
+        cell.textContent = value;
+        cell.addEventListener('click', () => handleCellClick(cell));
+        gridContainer.appendChild(cell);
+      });
+
+      levelHud.textContent = String(state.currentLevel);
+      targetHud.textContent = '1';
+    }
+
+    function handleCellClick(cell) {
+      if (!state.isRunning || state.isFinished) return;
+
+      const value = Number(cell.dataset.value);
+      if (Number.isNaN(value)) return;
+
+      if (value === state.targetNumber) {
+        cell.classList.add('found');
+        cell.style.color = 'white';
+        state.targetNumber += 1;
+        targetHud.textContent = String(state.targetNumber);
+
+        if (state.targetNumber > Math.max(...state.numbersList)) {
+          finishGame(true, 'You cleared the level!');
+        }
+      } else {
+        cell.classList.add('wrong-blink');
+        setTimeout(() => cell.classList.remove('wrong-blink'), 250);
+      }
+    }
+
+    function finishGame(won, message) {
+      clearTimer();
+      state.isRunning = false;
+      state.isFinished = true;
+
+      if (won) {
+        endIcon.textContent = '🎉';
+        endTitle.textContent = 'Level Complete!';
+        endMessage.textContent = message;
+        actionButton.textContent = state.currentLevel >= state.maxLevels ? 'Play Again' : 'Next Level';
+        state.nextAction = 'next';
+      } else {
+        endIcon.textContent = '⏰';
+        endTitle.textContent = 'Game Over';
+        endMessage.textContent = message;
+        actionButton.textContent = 'Try Again';
+        state.nextAction = 'retry';
+      }
+
+      showScreen('end');
+    }
+
+    function startLevel() {
+      clearTimer();
+      state.isFinished = false;
+      state.isRunning = true;
+      state.targetNumber = 1;
+      renderGrid();
+      startTimer();
+      showScreen('game');
+    }
+
+    document.getElementById('btn-start').addEventListener('click', () => {
+      startLevel();
+    });
+
+    document.getElementById('btn-quit').addEventListener('click', () => {
+      clearTimer();
+      state.isRunning = false;
+      state.isFinished = false;
+      showScreen('menu');
+    });
+
+    actionButton.addEventListener('click', () => {
+      if (state.nextAction === 'next') {
+        state.currentLevel = Math.min(state.currentLevel + 1, state.maxLevels);
+      }
+      if (state.currentLevel < 1) {
+        state.currentLevel = 1;
+      }
+      showScreen('menu');
+      document.getElementById('btn-start').textContent = `Start Level ${state.currentLevel}`;
+    });
+
+    document.getElementById('custom-seconds').addEventListener('input', (event) => {
+      const value = Number(event.target.value);
+      state.customTimeLimit = Number.isFinite(value) && value > 0 ? value : 45;
+    });
+
+    function initializeGame() {
+      updateCustomTimerVisibility();
+      state.currentLevel = 1;
+      state.targetNumber = 1;
+      document.getElementById('btn-start').textContent = 'Start Level 1';
+      showScreen('menu');
+    }
+
+    initializeGame();
+  </script>
+</body>
+</html>
